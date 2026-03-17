@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "notifications/new"
+  get "notifications/create"
   devise_for :users
   root to: "pages#home"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -13,4 +15,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
-end
+  get    "/notifications/new",     to: "notifications#new",    as: :new_notification
+  post   "/notifications",         to: "notifications#create"
+  end
