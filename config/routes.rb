@@ -13,4 +13,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "posts#index"
+
+  get "pre_canada", to: "pages#pre_canada", as: :pre_canada
 end
