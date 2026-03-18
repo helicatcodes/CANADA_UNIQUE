@@ -23,4 +23,8 @@ class PagesController < ApplicationController
 
   def post_canada
   end
+
+  # Renders the profile page for the logged-in user. MJR
+  def profile
+  end
 end
