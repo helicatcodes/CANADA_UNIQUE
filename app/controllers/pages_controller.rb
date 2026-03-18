@@ -20,4 +20,7 @@ class PagesController < ApplicationController
     # as a user i can view a shared feed of pictures
     # # # retrieve all pics from db and organize in gallery
   end
+
+  def post_canada
+  end
 end
