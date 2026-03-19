@@ -10,7 +10,8 @@
     <% end %>
 
     <% if user_signed_in? %>
-      <%= link_to "#", class: "bottom-nav__item" do %>
+      <%# Profile link updated to point to the profile page. MJR %>
+      <%= link_to profile_path, class: "bottom-nav__item" do %>
         <i class="fa fa-user"></i>
         <span>Profile</span>
       <% end %>
