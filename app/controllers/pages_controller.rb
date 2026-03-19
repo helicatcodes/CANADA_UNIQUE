@@ -15,8 +15,12 @@ class PagesController < ApplicationController
   end
 
   def in_canada
-    @photos = Photo.includes(:user).order(created_at: :desc)
-    @photo = Photo.new
+    # [HW] @my_photos: only the current user's photos (for their private gallery)
+    # [HW] @feed_photos: all photos marked as shared by any user (for the community feed)
+    # [HW] @photo: blank photo object needed by the upload form
+    @my_photos   = current_user.photos.order(created_at: :desc)
+    @feed_photos = Photo.includes(:user).where(shared: true).order(created_at: :desc)
+    @photo       = Photo.new
   end
 
   def post_canada

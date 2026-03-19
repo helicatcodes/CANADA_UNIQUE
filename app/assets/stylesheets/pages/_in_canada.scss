@@ -1,4 +1,4 @@
-// Upload & gallery panel box
+// [HW] Panel boxes — white card with a $cu-red top accent, matching the navbar's border-top style
 .cu-panel {
   background-color: $cu-white;
   border-top: 3px solid $cu-red;
@@ -14,21 +14,33 @@
   margin-bottom: 1.25rem;
 }
 
-// Photo grid
+// [HW] Photo grid — responsive columns, wider gap to let polaroid shadows breathe
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 2rem;
 }
 
+// [HW] Polaroid card: thick white border on all sides, extra padding at the bottom like a real polaroid.
+// Slight alternating tilt gives a natural, scattered look.
 .photo-card {
-  border: 1px solid $light-gray;
-  border-radius: $border-radius-lg;
-  overflow: hidden;
   background: $cu-white;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  padding: 8px 8px 36px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.03) rotate(0deg) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
 }
 
+// // [HW] Alternating slight rotation for a natural polaroid scatter effect
+// .photo-card:nth-child(odd)  { transform: rotate(-1.5deg); }
+// .photo-card:nth-child(even) { transform: rotate(1deg); }
+
+// [HW] Square crop — keeps the grid uniform regardless of original image dimensions
 .photo-card__img {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -36,14 +48,76 @@
   display: block;
 }
 
+// [HW] Caption area centered like a handwritten polaroid label
 .photo-card__body {
-  padding: 0.75rem;
+  padding: 10px 4px 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
+// [HW] Italic caption text gives a handwritten polaroid feel
 .photo-card__desc {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
+  font-style: italic;
   color: $cu-charcoal;
   margin-bottom: 0.25rem;
+}
+
+// [HW] Icon button row — button_to generates <form> tags, so we set them to inline-flex
+// so the three buttons sit on one horizontal line
+.photo-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+
+  form {
+    display: inline-flex;
+    margin: 0;
+  }
+}
+
+// [HW] Circular icon buttons — neutral by default, coloured on hover or when active
+.photo-action-btn {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $light-gray;
+  border-radius: 50%;
+  background: none;
+  color: $cu-charcoal;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  padding: 0;
+
+  &:hover {
+    background: $light-gray;
+    color: $cu-navy;
+    border-color: $cu-charcoal;
+  }
+
+  // [HW] Red hover for the delete button
+  &--danger:hover {
+    background: lighten($cu-red, 38%);
+    color: $cu-red;
+    border-color: $cu-red;
+  }
+
+  // [HW] Filled navy when photo is currently shared (active state)
+  &--active {
+    background: $cu-navy;
+    color: $cu-white;
+    border-color: $cu-navy;
+
+    &:hover {
+      background: darken($cu-navy, 8%);
+      border-color: darken($cu-navy, 8%);
+    }
+  }
 }
