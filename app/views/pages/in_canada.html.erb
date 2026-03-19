@@ -4,11 +4,14 @@
   <%# Upload section %>
   <div class="cu-panel mb-5">
     <h2 class="cu-panel__title">Upload a Photo</h2>
-    <%= simple_form_for @photo, url: photos_path do |f| %>
-      <%= f.input :image, as: :file, label: "Choose a photo" %>
-      <%= f.input :description, placeholder: "Add a caption..." %>
-      <%= f.submit "Upload", class: "btn btn-primary" %>
-    <% end %>
+    <%# [HW] Constrained to a fixed width so the form doesn't stretch across the full panel %>
+    <div class="upload-form-wrapper">
+      <%= simple_form_for @photo, url: photos_path do |f| %>
+        <%= f.input :image, as: :file, label: false %>
+        <%= f.input :description, placeholder: "Add a caption..." %>
+        <%= f.submit "Upload", class: "btn btn-primary" %>
+      <% end %>
+    </div>
   </div>
 
   <%# My Photos section — only the current user's photos, with icon action buttons %>
@@ -21,24 +24,10 @@
         <% @my_photos.each do |photo| %>
           <% if photo.image.attached? %>
             <div class="photo-card">
-              <%= image_tag photo.image, class: "photo-card__img" %>
-              <div class="photo-card__body">
-                <p class="photo-card__desc"><%= photo.description %></p>
-                <%# [HW] Icon buttons in one row: edit (pen), delete (trash), share/unshare (share-nodes) %>
-                <%# [HW] button_to generates a <form> — .photo-actions sets those forms to inline-flex %>
-                <div class="photo-actions">
-                  <%= link_to edit_photo_path(photo), class: "photo-action-btn", title: "Edit caption" do %>
-                    <i class="fa-solid fa-pen"></i>
-                  <% end %>
-                  <%= button_to photo_path(photo), method: :delete,
-                      class: "photo-action-btn photo-action-btn--danger",
-                      title: "Delete photo",
-                      data: { turbo_confirm: "Are you sure?" } do %>
-                    <i class="fa-solid fa-trash"></i>
-                  <% end %>
-                  <%# [HW] link_to with data-turbo-method: :patch is the Turbo-native way to make %>
-                  <%# a PATCH request from a link/icon without needing a form wrapper %>
-                  <%# shared? → navy filled icon. Not shared? → grey outline icon %>
+              <%# [HW] Icon bar sits on the white card background above the photo %>
+              <%# [HW] Left side: share. Right side: edit + delete %>
+              <div class="photo-card__actions">
+                <div class="photo-card__actions-left">
                   <%= link_to toggle_share_photo_path(photo),
                       data: { turbo_method: :patch },
                       class: "photo-action-btn #{ photo.shared ? 'photo-action-btn--active' : '' }",
@@ -46,6 +35,25 @@
                     <i class="fa-solid fa-share-nodes"></i>
                   <% end %>
                 </div>
+                <div class="photo-card__actions-right">
+                  <%= link_to edit_photo_path(photo), class: "photo-action-btn", title: "Edit caption" do %>
+                    <i class="fa-solid fa-pen"></i>
+                  <% end %>
+                  <%# [HW] Delete — dark navy default, red on hover (unified with comment delete) %>
+                  <%= button_to photo_path(photo), method: :delete,
+                      class: "photo-action-btn photo-action-btn--danger",
+                      title: "Delete photo",
+                      data: { turbo_confirm: "Are you sure?" } do %>
+                    <i class="fa-solid fa-trash"></i>
+                  <% end %>
+                </div>
+              </div>
+
+              <%= image_tag photo.image, class: "photo-card__img" %>
+
+              <%# [HW] Caption only below the photo %>
+              <div class="photo-card__body">
+                <p class="photo-card__desc"><%= photo.description %></p>
               </div>
             </div>
           <% end %>
@@ -63,34 +71,48 @@
       <div class="photo-grid">
         <% @feed_photos.each do |photo| %>
           <% if photo.image.attached? %>
-            <div class="photo-card">
+            <%# [HW] photo-card--feed modifier switches body to left-aligned for IG style %>
+            <div class="photo-card photo-card--feed">
               <%= image_tag photo.image, class: "photo-card__img" %>
-              <div class="photo-card__body">
-                <p class="photo-card__desc"><%= photo.description %></p>
-                <small class="text-muted">By <%= photo.user.name %></small>
 
-                <%# [HW] Like button — checks in-memory loaded likes (no extra DB query) %>
-                <%# [HW] already_liked uses .any? on the already-loaded likes array %>
+              <div class="photo-card__body">
+                <%# [HW] Reactions row: heart left, comment bubble right (pushed by margin-left: auto) %>
                 <% already_liked = photo.likes.any? { |l| l.user_id == current_user.id } %>
-                <div class="photo-actions mt-2">
+                <div class="feed-reactions">
+                  <%# [HW] fa-solid fa-heart always — FA Free doesn't include fa-regular fa-heart %>
+                  <%# [HW] liked vs not-liked state handled by CSS via feed-reaction-btn--liked %>
                   <%= button_to photo_likes_path(photo), method: :post,
-                      class: "photo-action-btn #{ already_liked ? 'photo-action-btn--liked' : '' }",
+                      class: "feed-reaction-btn #{ already_liked ? 'feed-reaction-btn--liked' : '' }",
                       title: already_liked ? "Unlike" : "Like" do %>
-                    <i class="fa-#{ already_liked ? 'solid' : 'regular' } fa-heart"></i>
-                    <span class="ms-1"><%= photo.likes.size %></span>
+                    <i class="fa-solid fa-heart"></i>
+                    <span><%= photo.likes.size %></span>
                   <% end %>
+                  <%# [HW] Comment count pushed to the right of the same row %>
+                  <span class="feed-reaction-btn feed-reaction-btn--comment">
+                    <i class="fa-solid fa-comment"></i>
+                    <span><%= photo.comments.size %></span>
+                  </span>
                 </div>
 
-                <%# [HW] Comments list — loops over already-loaded comments (no extra DB query) %>
-                <div class="feed-comments mt-2">
+                <%# [HW] Instagram-style: bold author name followed by caption on the same line %>
+                <p class="photo-card__desc">
+                  <strong class="photo-card__author"><%= photo.user.name %></strong>
+                  <%= photo.description %>
+                </p>
+
+                <%# [HW] Comments — bold author name + comment text, delete trash icon for own comments %>
+                <div class="feed-comments">
                   <% photo.comments.each do |comment| %>
                     <div class="feed-comment">
-                      <strong><%= comment.user.name %></strong> <%= comment.text %>
-                      <%# [HW] Delete button only visible to the comment's author %>
+                      <span class="feed-comment__body">
+                        <strong class="feed-comment__author"><%= comment.user.name %></strong>
+                        <span class="feed-comment__text"><%= comment.text %></span>
+                      </span>
+                      <%# [HW] Trash icon only for the comment's own author — dark navy, red on hover %>
                       <% if comment.user == current_user %>
                         <%= button_to photo_comment_path(photo, comment), method: :delete,
                             class: "feed-comment__delete", title: "Delete comment" do %>
-                          <i class="fa-solid fa-xmark"></i>
+                          <i class="fa-solid fa-trash"></i>
                         <% end %>
                       <% end %>
                     </div>
@@ -99,10 +121,10 @@
 
                 <%# [HW] Comment form — posts to CommentsController#create via nested route %>
                 <%= simple_form_for [photo, Comment.new], url: photo_comments_path(photo) do |f| %>
-                  <div class="d-flex gap-1 mt-2">
-                    <%= f.input :text, label: false, placeholder: "Add a comment...",
-                        wrapper: false, input_html: { class: "form-control form-control-sm" } %>
-                    <%= f.submit "Post", class: "btn btn-sm btn-primary" %>
+                  <div class="feed-comment-form">
+                    <%= f.input :text, label: false, placeholder: "Add a comment…",
+                        wrapper: false, input_html: { class: "feed-comment-form__input" } %>
+                    <%= f.submit "Post", class: "feed-comment-form__submit" %>
                   </div>
                 <% end %>
               </div>
