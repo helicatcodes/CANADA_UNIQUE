@@ -36,8 +36,11 @@
                       data: { turbo_confirm: "Are you sure?" } do %>
                     <i class="fa-solid fa-trash"></i>
                   <% end %>
-                  <%# [HW] shared? → blue filled icon (active). Not shared? → grey outline icon %>
-                  <%= button_to toggle_share_photo_path(photo), method: :patch,
+                  <%# [HW] link_to with data-turbo-method: :patch is the Turbo-native way to make %>
+                  <%# a PATCH request from a link/icon without needing a form wrapper %>
+                  <%# shared? → navy filled icon. Not shared? → grey outline icon %>
+                  <%= link_to toggle_share_photo_path(photo),
+                      data: { turbo_method: :patch },
                       class: "photo-action-btn #{ photo.shared ? 'photo-action-btn--active' : '' }",
                       title: photo.shared ? "Unshare from feed" : "Share to community feed" do %>
                     <i class="fa-solid fa-share-nodes"></i>
