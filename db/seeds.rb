@@ -66,11 +66,14 @@ photos = users.flat_map do |user|
       description: Faker::Lorem.sentence,
       user: user
     )
-    photo.image.attach(
-      io: URI.open(Faker::LoremFlickr.image(size: "300x300", search_terms: ["canada"])),
-      filename: "photo_#{photo.id}.jpg",
-      content_type: "image/jpeg"
-    )
+    # Only attach images if Cloudinary is configured (skipped in environments without API keys)
+    if ENV["CLOUDINARY_URL"].present?
+      photo.image.attach(
+        io: URI.open(Faker::LoremFlickr.image(size: "300x300", search_terms: ["canada"])),
+        filename: "photo_#{photo.id}.jpg",
+        content_type: "image/jpeg"
+      )
+    end
     photo
   end
 end
