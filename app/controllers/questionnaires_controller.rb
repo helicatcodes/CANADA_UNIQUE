@@ -13,13 +13,42 @@ class QuestionnairesController < ApplicationController
       end
     end
 
-    # [HW] Mark the questionnaire as submitted if the student clicked "Submit questionnaire".
-    # Saving as draft (clicking "Save progress") does not send this param, so submitted stays false.
-    if params[:submitted] == "true"
-      @questionnaire.update!(submitted: true)
+    # [HW] Update the submitted flag whenever the param is present.
+    # "true"  → student clicked the unlock button (submit)
+    # "false" → student clicked the revert icon next to the Submitted badge (go back to draft)
+    # When the param is absent (per-card Save fetch), submitted is left unchanged.
+    if params.key?(:submitted)
+      @questionnaire.update!(submitted: params[:submitted] == "true")
     end
 
-    redirect_to post_canada_path, notice: params[:submitted] == "true" ? "Questionnaire submitted!" : "Progress saved."
+    # [HW] The same update action is called in two different ways, so we need to respond differently
+    # depending on who is calling:
+    #
+    #   1. The "Create Personal Growth Summary" button at the bottom of the page is a regular HTML
+    #      form submit (button_to). When that fires, Rails should redirect back to /post_canada
+    #      so the page reloads and the student sees the updated submitted state.
+    #
+    #   2. Each per-card "Save" button uses JavaScript fetch (via the question_card Stimulus
+    #      controller) and sends Accept: application/json. We must NOT redirect for this caller —
+    #      instead we return a tiny { ok: true } JSON response so the JS knows it succeeded
+    #      and can flip the card to "saved" mode without touching the page.
+    #
+    # respond_to checks the Accept header to decide which branch to run.
+    respond_to do |format|
+      format.html do
+        # [HW] Anchor the redirect so the page lands at the right section after reload instead
+        # of jumping to the top:
+        #   submitted: true  → scroll down to the summary panel ("ai-summary" anchor)
+        #   submitted: false → scroll back to the questionnaire ("questionnaire" anchor)
+        #   no submitted param (shouldn't reach HTML format from per-card save, but safe fallback)
+        anchor = case params[:submitted]
+                 when "true"  then "ai-summary"
+                 when "false" then "questionnaire"
+                 end
+        redirect_to post_canada_path(anchor: anchor), notice: params[:submitted] == "true" ? "Questionnaire submitted!" : "Progress saved."
+      end
+      format.json { render json: { ok: true } }
+    end
   end
 
   private
