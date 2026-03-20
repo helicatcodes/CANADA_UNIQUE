@@ -16,10 +16,18 @@ puts "Cleaning database..."
 Like.destroy_all
 Comment.destroy_all
 Photo.destroy_all
+Answer.destroy_all
+Question.destroy_all
+Questionnaire.destroy_all
 Task.destroy_all
 Message.destroy_all
 Chat.destroy_all
-Notification.destroy_all
+# Clean noticed gem tables and legacy notifications table before destroying users
+# (these have foreign keys to users but have no Ruby model class)
+conn = ActiveRecord::Base.connection
+conn.execute("DELETE FROM noticed_notifications") if conn.table_exists?("noticed_notifications")
+conn.execute("DELETE FROM noticed_events")       if conn.table_exists?("noticed_events")
+conn.execute("DELETE FROM notifications")        if conn.table_exists?("notifications")
 User.destroy_all
 puts "Database cleaned ✅"
 
@@ -142,12 +150,21 @@ users.each do |folder, user|
       user: user,
       shared: [true, true, false].sample
     )
-    photo.image.attach(
-      io: File.open(file),
-      filename: File.basename(file),
-      content_type: "image/jpeg"
+#    photo.image.attach(
+#     io: File.open(file),
+#     filename: File.basename(file),
+#     content_type: "image/jpeg"
     )
     all_photos << photo
+    # Only attach images if Cloudinary is configured (skipped in environments without API keys)
+    if ENV["CLOUDINARY_URL"].present?
+      photo.image.attach(
+        io: URI.open(Faker::LoremFlickr.image(size: "300x300", search_terms: ["canada"])),
+        filename: "photo_#{photo.id}.jpg",
+        content_type: "image/jpeg"
+      )
+    end
+    photo
   end
 end
 
@@ -251,7 +268,78 @@ puts "Created #{Chat.count} chats, #{Message.count} messages"
 # 6. NOTIFICATIONS
 # ---------------------------
 puts "Creating notifications..."
+# -----------------------------
+# 5. QUESTIONNAIRES + QUESTIONS
+# -----------------------------
+# [HW] create_for creates the questionnaire and seeds all 8 predefined questions in one call.
+puts "Creating questionnaires and questions..."
 
+questionnaires = users.map { |user| Questionnaire.create_for(user) }
+
+puts "Created #{questionnaires.count} questionnaires"
+
+# -----------------------------
+# 6. ANSWERS (4 per user, matched to first 4 questions)
+# -----------------------------
+# [HW] ANSWER_PROFILES: 5 sets of 4 short answers, one per seed user, matched to QUESTIONS order.
+# Questions 5-8 are left unanswered so testers can fill them in during demo/testing.
+# [HW] zip pairs each question with its matching answer string before creating the Answer record.
+ANSWER_PROFILES = [
+  [ # User 1
+    "The language barrier in the first month was hard. Watching TV without subtitles every evening helped a lot.",
+    "Canadians are much more open about emotions than Germans. It made me appreciate both communication styles.",
+    "Joining drama club even though I had never acted before taught me I can do things I am not naturally good at.",
+    "By the end I was joking in English and dreaming in it — after three months it just started to flow naturally."
+  ],
+  [ # User 2
+    "Making friends was harder than expected. Joining the school soccer team immediately gave me a group and a purpose.",
+    "Canada made my hometown feel smaller but more special. I now appreciate Germany's efficiency differently.",
+    "Ice camping in January was completely out of my element, but it showed me that vulnerability builds real trust.",
+    "I went from speaking English only in class to leading group projects and presenting confidently."
+  ],
+  [ # User 3
+    "Falling behind in maths because the curriculum differed was stressful. A study buddy fixed it quickly.",
+    "Surrounded by forests and lakes, I realised how little green space I engage with at home.",
+    "Trying surfing despite my fear of deep water taught me that fear is often just unfamiliarity.",
+    "By spring I was correcting my own grammar in real time and naturally adjusting my tone to each situation."
+  ],
+  [ # User 4
+    "My host parents spoke very fast. Asking them to slow down felt awkward at first but became a warm daily ritual.",
+    "Germans treat silence as comfortable; Canadians treat it as awkward. Knowing this made me a much better listener.",
+    "Speaking at the school assembly with shaking legs and getting a standing ovation cured my fear of public speaking.",
+    "I went from sounding textbook-formal to using the natural rhythm of a native speaker."
+  ],
+  [ # User 5
+    "A conflict with my host sibling over shared space was tough. Talking it out honestly made us close.",
+    "Canada is far more multicultural than home. It changed what 'normal' looks like to me.",
+    "Joining a First Nations cultural workshop felt uncomfortable at first but was genuinely eye-opening.",
+    "I stopped being afraid of making mistakes in English — that mindset shift helped me in every other area too."
+  ]
+].freeze
+
+puts "Creating answers..."
+
+questionnaires.each_with_index do |questionnaire, i|
+  # [HW] zip pairs each of the first 4 questions with its matching answer string.
+  # Questions 5-8 are skipped — left blank for manual testing of the form.
+  questionnaire.questions.first(4).zip(ANSWER_PROFILES[i]) do |question, answer_text|
+    Answer.create!(question: question, text: answer_text)
+  end
+end
+
+puts "Created answers for #{questionnaires.count} questionnaires (4 per user)"
+
+# -----------------------------
+# 8. CHATS
+# -----------------------------
+puts "Creating chats..."
+
+chats = users.map do |user|
+  Chat.create!(user: user)
+end
+
+puts "Created #{chats.count} chats"
+# CONTINUE OF 6. NOTIFICATIONS originally line 268
 # Niels is the admin user — notifications are sent from his account. MJR
 admin_user = users["Niels"]
 
