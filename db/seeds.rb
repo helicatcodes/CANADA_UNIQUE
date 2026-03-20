@@ -16,10 +16,15 @@ Photo.destroy_all
 Answer.destroy_all
 Question.destroy_all
 Questionnaire.destroy_all
-Notification.destroy_all
 Task.destroy_all
 Message.destroy_all
 Chat.destroy_all
+# Clean noticed gem tables and legacy notifications table before destroying users
+# (these have foreign keys to users but have no Ruby model class)
+conn = ActiveRecord::Base.connection
+conn.execute("DELETE FROM noticed_notifications") if conn.table_exists?("noticed_notifications")
+conn.execute("DELETE FROM noticed_events")       if conn.table_exists?("noticed_events")
+conn.execute("DELETE FROM notifications")        if conn.table_exists?("notifications")
 User.destroy_all
 
 puts "Database cleaned ✅..."
@@ -61,11 +66,14 @@ photos = users.flat_map do |user|
       description: Faker::Lorem.sentence,
       user: user
     )
-    photo.image.attach(
-      io: URI.open(Faker::LoremFlickr.image(size: "300x300", search_terms: ["canada"])),
-      filename: "photo_#{photo.id}.jpg",
-      content_type: "image/jpeg"
-    )
+    # Only attach images if Cloudinary is configured (skipped in environments without API keys)
+    if ENV["CLOUDINARY_URL"].present?
+      photo.image.attach(
+        io: URI.open(Faker::LoremFlickr.image(size: "300x300", search_terms: ["canada"])),
+        filename: "photo_#{photo.id}.jpg",
+        content_type: "image/jpeg"
+      )
+    end
     photo
   end
 end
@@ -167,22 +175,7 @@ end
 puts "Created answers for #{questionnaires.count} questionnaires (4 per user)"
 
 # -----------------------------
-# 8. NOTIFICATIONS
-# -----------------------------
- puts "Creating notifications..."
-
- notifications = 10.times.map do
-   Notification.create!(
-     content: Faker::Lorem.sentence,
-     user: users.sample,
-     date_time: Faker::Time.forward(days: 5)
-   )
- end
-
-puts "Created #{notifications.count} notifications"
-
-# -----------------------------
-# 9. CHATS
+# 8. CHATS
 # -----------------------------
 puts "Creating chats..."
 
