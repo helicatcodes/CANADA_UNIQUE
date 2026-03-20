@@ -1,11 +1,90 @@
-<h1>Welcome back, buddy</h1>
-<h2></h2>
+<div class="container mt-4">
 
-<%= button_to "Reflect on your experiences with our questionnaire", post_canada_path, class: "btn btn-primary"%>
-<%= link_to "Here is your questionnaire", post_canada_path, class: "btn btn-primary"%>
+  <%# [HW] Back arrow — navigates to the home page %>
+  <%= link_to root_path, class: "back-link mb-3 d-inline-flex" do %>
+    <i class="fa-solid fa-arrow-left"></i> Home
+  <% end %>
 
-<div>
-  <h2>A summary of your experiences in Canada</h2>
-  <h3> This summary was generated with AI with compliance to your personal and sensitive personal data</h3>
-<p> <%= display @summary %></p>
+  <h1 class="mt-3 mb-1">Welcome back, <%= current_user.name %>! 🇨🇦</h1>
+  <p class="text-muted mb-4">You did something incredible. Now let's reflect on it.</p>
+
+  <%# Questionnaire section %>
+  <div class="cu-panel mb-5">
+    <div class="cu-panel__title d-flex align-items-center gap-2">
+      <i class="fa-solid fa-clipboard-question"></i>
+      Reflection Questionnaire
+      <%# [HW] Status badge — submitted (green) vs draft (grey) %>
+      <% if @questionnaire.submitted? %>
+        <span class="badge bg-success ms-2">
+          <i class="fa-solid fa-circle-check"></i> Submitted
+        </span>
+      <% else %>
+        <span class="badge bg-secondary ms-2">
+          <i class="fa-solid fa-clock"></i> Draft
+        </span>
+      <% end %>
+    </div>
+
+    <p class="text-muted mb-4">Take your time. You can save your progress and come back later.</p>
+
+    <%# [HW] Emojis matched to each question's theme, displayed as the card's visual anchor %>
+    <% emojis = ["💪", "🌍", "🚀", "💬", "🦅", "🏠", "🎯", "✉️"] %>
+
+    <%# [HW] form_with posts to QuestionnairesController#update (PATCH /questionnaires/:id).
+         No model object — params handled manually in the controller. %>
+    <%= form_with url: questionnaire_path(@questionnaire), method: :patch do |f| %>
+
+      <%# [HW] Loop over @questions (eager-loaded with answers in PagesController#post_canada).
+           answers[question.id] is the param key the controller reads in params[:answers]. %>
+      <% @questions.each_with_index do |question, index| %>
+        <div class="question-card">
+          <div class="question-card__emoji"><%= emojis[index] %></div>
+          <div class="question-card__body">
+            <label class="question-card__label"><%= question.text %></label>
+            <%# [HW] question.answers.first&.text retrieves the saved answer (nil if not yet answered). %>
+            <%= text_area_tag "answers[#{question.id}]",
+                              question.answers.first&.text,
+                              class: "form-control",
+                              rows: 3,
+                              placeholder: "Share your thoughts..." %>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="d-flex gap-2 mt-4">
+        <%# [HW] "Save progress" — no submitted param, controller leaves submitted: false %>
+        <button type="submit" class="btn btn-outline-primary">
+          <i class="fa-solid fa-floppy-disk"></i> Save
+        </button>
+        <%# [HW] "Submit" — sends submitted=true; controller marks questionnaire as submitted %>
+        <button type="submit" name="submitted" value="true" class="btn btn-primary">
+          <i class="fa-solid fa-paper-plane"></i> Submit
+        </button>
+      </div>
+
+    <% end %>
+  </div>
+
+  <%# AI Summary section %>
+  <div class="ai-summary-panel mb-5">
+    <div class="ai-summary__icon">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </div>
+    <div class="ai-summary__title">Your Personal Growth Summary</div>
+    <% if @questionnaire.submitted? %>
+      <p class="ai-summary__body">
+        Your answers are in. Your AI life coach is ready to reflect your journey back to you — growth, challenges, and all.
+      </p>
+      <%# [HW] AI summary content — wired up by teammate once questionnaire is submitted %>
+      <%# <p><%= display @summary %></p> %>
+    <% else %>
+      <p class="ai-summary__body">
+        Submit your questionnaire above and unlock a personalised summary of your exchange year — written just for you.
+      </p>
+      <span class="ai-summary__nudge">
+        <i class="fa-solid fa-lock me-1"></i> Unlocks after you submit
+      </span>
+    <% end %>
+  </div>
+
 </div>
