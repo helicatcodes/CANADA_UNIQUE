@@ -135,13 +135,13 @@
 
 // [HW] AI summary panel — beige background with red top accent, matching panel style
 .ai-summary-panel {
-  background: $cu-beige;
-  border-top: 3px solid $cu-red;
+  background: linear-gradient(135deg, #1D253F 0%, #28448c 100%);
+  border-top: 3px solid $cu-beige;
   border-radius: $border-radius-lg;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba#F4F4F4;
   padding: 3rem 2rem;
   text-align: center;
-  color: $cu-navy;
+  color: $light-gray;
 
   .ai-summary__icon {
     font-size: 3.2rem;
@@ -154,12 +154,12 @@
     font-weight: 700;
     letter-spacing: 0.02em;
     margin-bottom: 0.6rem;
-    color: $cu-navy;
+    color: $light-gray;
   }
 
   .ai-summary__body {
     font-size: 0.95rem;
-    color: $cu-charcoal;
+    color: $light-gray;
     max-width: 460px;
     margin: 0 auto;
     line-height: 1.6;
