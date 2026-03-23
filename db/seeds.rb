@@ -262,7 +262,7 @@ puts "Created #{Chat.count} chats, #{Message.count} messages"
 # [HW] create_for creates the questionnaire and seeds all 8 predefined questions in one call.
 puts "Creating questionnaires and questions..."
 
-questionnaires = users.map { |user| Questionnaire.create_for(user) }
+questionnaires = users.values.map { |user| Questionnaire.create_for(user) }
 
 puts "Created #{questionnaires.count} questionnaires"
 
@@ -317,33 +317,31 @@ end
 
 puts "Created answers for #{questionnaires.count} questionnaires (4 per user)"
 
-# -----------------------------
-# 8. CHATS
-# -----------------------------
-puts "Creating chats..."
+# # -----------------------------
+# # 8. CHATS
+# # -----------------------------
+# puts "Creating chats..."
 
-chats = users.map do |user|
-  Chat.create!(user: user)
-end
+# chats = users.map do |user|
+#   Chat.create!(user: user)
+# end
 
-puts "Created #{chats.count} chats"
+# puts "Created #{chats.count} chats"
 
 # ---------------------------
 # 9. NOTIFICATIONS
 # ---------------------------
 puts "Creating notifications..."
 
-# Niels is the admin user — notifications are sent from his account. MJR
-admin_user = users["Niels"]
-
+# Uses AdminBroadcastNotifier (noticed gem v2) to deliver notifications to all users. MJR
 [
-  { content: "Welcome to Canada Unique! Here you can track your tasks, share photos, and connect with your cohort.", date_time: 2.weeks.ago },
-  { content: "Reminder: Please make sure your Jahreszeugnisse and passport copies are uploaded before your departure date.", date_time: 1.week.ago }
+  { title: "Welcome to Canada Unique!", message: "Here you can track your tasks, share photos, and connect with your cohort." },
+  { title: "Document reminder", message: "Please make sure your Jahreszeugnisse and passport copies are uploaded before your departure date." }
 ].each do |notif|
-  Notification.create!(content: notif[:content], user: admin_user, date_time: notif[:date_time])
+  AdminBroadcastNotifier.with(title: notif[:title], message: notif[:message]).deliver(User.all)
 end
 
-puts "Created #{Notification.count} notifications"
+puts "Created notifications via AdminBroadcastNotifier"
 
 # ---------------------------
 # 10. TASKS
@@ -431,4 +429,4 @@ puts "Created #{Task.count} tasks"
 
 puts ""
 puts "Seeding finished!"
-puts "#{User.count} users | #{Photo.count} photos | #{Comment.count} comments | #{Like.count} likes | #{Chat.count} chats | #{Message.count} messages | #{Task.count} tasks | #{Notification.count} notifications"
+puts "#{User.count} users | #{Photo.count} photos | #{Comment.count} comments | #{Like.count} likes | #{Chat.count} chats | #{Message.count} messages | #{Task.count} tasks | #{Noticed::Event.count} notifications"
