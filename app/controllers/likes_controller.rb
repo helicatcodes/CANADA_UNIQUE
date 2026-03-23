@@ -10,7 +10,13 @@ class LikesController < ApplicationController
     else
       @photo.likes.create(user: current_user)
     end
-    # [HW] status: :see_other (303) required for Turbo to follow POST redirects correctly
-    redirect_to in_canada_path, status: :see_other
+    # [HW] reload so likes.size in the turbo stream partial reflects the change just made
+    @photo.reload
+    # [HW] respond_to lets Turbo choose: stream response keeps the modal open;
+    # [HW] html fallback redirects normally when JavaScript is unavailable
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_to in_canada_path, status: :see_other }
+    end
   end
 end

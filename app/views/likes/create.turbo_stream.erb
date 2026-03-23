@@ -1,0 +1,5 @@
+<%# [HW] Replace the reactions bar in place — modal stays open, heart state and count update immediately %>
+<%# [HW] turbo_stream.replace finds the element with id="feed-reactions-N" and swaps it for the re-rendered partial %>
+<%= turbo_stream.replace "feed-reactions-#{@photo.id}" do %>
+  <%= render "likes/reactions", photo: @photo %>
+<% end %>

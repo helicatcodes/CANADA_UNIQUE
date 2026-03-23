@@ -1,0 +1,2 @@
+<%# [HW] Remove the comment row from the DOM by its unique id — modal stays open, no page navigation %>
+<%= turbo_stream.remove "comment-#{@comment.id}" %>
