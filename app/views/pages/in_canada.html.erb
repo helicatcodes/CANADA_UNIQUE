@@ -17,7 +17,6 @@
 
               <div class="photo-card__body">
                 <%# [HW] Reactions row: heart left, comment bubble right (pushed by margin-left: auto) %>
-                <% already_liked = photo.likes.any? { |l| l.user_id == current_user.id } %>
                 <%= render "likes/reactions", photo: photo %>
 
                 <%# [HW] Instagram-style: bold author name followed by caption on the same line %>
@@ -49,16 +48,32 @@
     <%# [HW] Grid is always rendered — it always contains at least the upload card %>
     <div class="photo-grid">
 
-      <%# [HW] Upload card is permanently the first slot in the grid %>
-      <%# [HW] simple_form_for @photo with url: photos_path posts to PhotosController#create %>
+      <%# [HW] Upload card — styled as an empty polaroid to match the other photo cards in the grid %>
       <div class="photo-card photo-card--upload">
         <%= simple_form_for @photo, url: photos_path do |f| %>
-          <div class="photo-card--upload__icon">
-            <i class="fa-solid fa-camera"></i>
+
+          <%# [HW] Empty actions bar — same height as the share/edit/trash icon row on real photo cards %>
+          <%# [HW] This pushes the grey dropzone down so it lines up with the photos in adjacent cards %>
+          <div class="photo-card__actions"></div>
+
+          <%# [HW] Grey square acts as the "photo area" — clicking it opens the file picker %>
+          <%# [HW] label `for: "photo_image"` links to the hidden input below — no JS needed %>
+          <label class="photo-card--upload__dropzone" for="photo_image">
+            <i class="fa-solid fa-camera photo-card--upload__camera"></i>
+            <span class="photo-card--upload__hint">Click to upload</span>
+          </label>
+
+          <%# [HW] Hidden file input — triggered by the label above, never shown directly %>
+          <%= f.input :image, as: :file, label: false,
+              input_html: { id: "photo_image", class: "photo-card--upload__input" } %>
+
+          <%# [HW] Caption area below the grey box — mirrors the polaroid body of real photo cards %>
+          <div class="photo-card__body photo-card--upload__body">
+            <%= f.input :description, label: false, placeholder: "Add a caption...",
+                wrapper: false, input_html: { class: "photo-card--upload__caption" } %>
+            <%= f.submit "Upload", class: "photo-card--upload__submit" %>
           </div>
-          <%= f.input :image, as: :file, label: false %>
-          <%= f.input :description, placeholder: "Add a caption..." %>
-          <%= f.submit "Upload", class: "btn btn-primary btn-sm w-100 mt-2" %>
+
         <% end %>
       </div>
 

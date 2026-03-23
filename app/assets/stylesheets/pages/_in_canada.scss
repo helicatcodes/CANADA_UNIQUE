@@ -45,30 +45,97 @@
     padding-bottom: 12px;
   }
 
-  // [HW] Upload placeholder card — dashed border signals "empty slot", no hover shadow/scale
+  // [HW] Upload card inherits the full polaroid look — no border override, no shadow reset
+  // [HW] It sits in the same grid slot as real photo cards so dimensions match automatically
   &--upload {
-    border: 2px dashed $light-gray;
-    box-shadow: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 1rem;
+    border: none;
 
-    // [HW] Override the scale hover — it looks odd on a form card
+    // [HW] Suppress the scale-on-hover — looks odd when the card contains a form
     &:hover {
       transform: none !important;
-      box-shadow: none;
-      border-color: $cu-navy;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    // [HW] The empty actions bar collapses to ~10px without buttons inside it.
+    // [HW] Real cards have 32px buttons + 4px top + 6px bottom padding = 42px total.
+    // [HW] This forces the spacer to the same height so the grey box aligns with adjacent photos.
+    .photo-card__actions {
+      min-height: 42px;
     }
   }
 }
 
-// [HW] Large centred camera icon as a visual cue before the user picks a file
-.photo-card--upload__icon {
-  text-align: center;
+// [HW] Grey square fills the same space as a real photo — aspect-ratio 1/1 enforces the square
+// [HW] cursor: pointer signals the whole area is clickable (linked to the hidden file input)
+.photo-card--upload__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: $light-gray;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-bottom: 0;
+
+  &:hover { background: darken($light-gray, 4%); }
+}
+
+// [HW] Hidden file input — label click triggers it so it never needs to be visible
+.photo-card--upload__input {
+  display: none;
+}
+
+// [HW] Camera icon centred inside the grey square
+.photo-card--upload__camera {
   font-size: 2rem;
-  color: $light-gray;
-  margin-bottom: 0.75rem;
+  color: darken($light-gray, 25%);
+  margin-bottom: 0.4rem;
+}
+
+// [HW] Small hint text below the camera icon
+.photo-card--upload__hint {
+  font-size: 0.7rem;
+  color: darken($light-gray, 25%);
+}
+
+// [HW] Caption body — overrides the center-align inherited from photo-card__body
+.photo-card--upload__body {
+  align-items: stretch;
+  width: 100%;
+}
+
+// [HW] Minimal underline input — matches the comment form style in the feed
+.photo-card--upload__caption {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid $light-gray;
+  outline: none;
+  font-size: 0.8rem;
+  color: $cu-charcoal;
+  background: transparent;
+  padding: 2px 0;
+
+  &::placeholder { color: lighten($cu-charcoal, 35%); }
+  &:focus { border-bottom-color: $cu-navy; }
+}
+
+// [HW] Full-width navy upload button at the bottom of the card body
+.photo-card--upload__submit {
+  margin-top: 8px;
+  width: 100%;
+  background: $cu-navy;
+  color: $cu-white;
+  border: none;
+  border-radius: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover { background: darken($cu-navy, 8%); }
 }
 
 // [HW] Square crop — keeps the grid uniform regardless of original image dimensions
