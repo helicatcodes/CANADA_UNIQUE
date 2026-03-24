@@ -24,7 +24,10 @@ class PagesController < ApplicationController
     # [HW] includes(:user, :likes, comments: :user) loads all likes, comments and their authors
     # [HW] for every feed photo upfront in one go (eager-loading), so the view doesn't hit the
     # [HW] database again for each individual photo card — preventing N+1 queries
-    @feed_photos = Photo.includes(:user, :likes, comments: :user).where(shared: true).order(created_at: :desc)
+    # [HW] avatar_attachment: :blob added so each user's avatar loads in the same query
+    # [HW] rather than firing a separate DB hit per card — prevents N+1 on the feed grid
+    @feed_photos = Photo.includes(:user, { user: { avatar_attachment: :blob } }, :likes, comments: :user)
+                        .where(shared: true).order(created_at: :desc)
     @photo       = Photo.new
   end
 
@@ -39,12 +42,9 @@ class PagesController < ApplicationController
     # can display each question's existing answer without extra DB queries.
     @questions = @questionnaire.questions.includes(:answers)
 
-    # AI questionnaire summary logic
+    # Enqueue background job to generate summary — avoids H12 timeout on Heroku
     if @questionnaire.submitted? && @questionnaire.ai_summary.blank?
-      answers = @questionnaire.answers.map(&:text).join("\n")
-      ruby_llm_chat = RubyLLM.chat(model: "claude-sonnet-4-6")
-      ruby_llm_chat.with_instructions(prompt)
-      @questionnaire.update(ai_summary: ruby_llm_chat.ask("Summarize the #{answers} of the qestionnare and give me advice").content)
+      GenerateAiSummaryJob.perform_later(@questionnaire.id)
     end
   end
 
@@ -64,17 +64,4 @@ class PagesController < ApplicationController
   end
 
 
-  private
-
-  def prompt
-    <<-PROMPT
-  You are a life coach specialized in personal development of youngsters.
-
-  I am a student from Germany that just came back from a one year exchange from Canada.
-
-  Give ma advice if I feel bad or have issues.
-
-  Give me next steps where I feel I have made progress during my stay in Canada.
-    PROMPT
-  end
 end

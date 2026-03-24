@@ -1,4 +1,3 @@
-// [HW] Panel boxes — white card with a $cu-red top accent, matching the navbar's border-top style
 .cu-panel {
   background-color: $cu-white;
   border-top: 3px solid $cu-red;
@@ -7,8 +6,6 @@
   padding: 1.5rem 2rem;
 }
 
-// [HW] Section title rendered as a full-width banner inside each panel
-// [HW] Negative margin pulls it to the panel edges; border-radius matches the panel's top corners
 .cu-panel__title {
   color: $cu-navy;
   background: $cu-beige;
@@ -20,24 +17,24 @@
   border-radius: $border-radius-lg $border-radius-lg 0 0;
 }
 
-// [HW] Photo grid — responsive columns, wider gap to let polaroid shadows breathe
+// [HW] Photo grid — responsive columns, matches community feed grid density and outer padding
 .photo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 0 1.25rem;
 }
 
-// [HW] Polaroid card: thick white border on all sides, extra padding at the bottom
+// [HW] Polaroid card: matches community feed card frame, shadow, and hover behaviour
 .photo-card {
   background: $cu-white;
-  padding: 8px 8px 36px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 10px 10px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08);
   border-radius: 2px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 
   &:hover {
-    transform: scale(1.03) rotate(0deg) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 
   // [HW] Upload card inherits the full polaroid look — no border override, no shadow reset
@@ -47,13 +44,9 @@
 
     // [HW] Suppress the scale-on-hover — looks odd when the card contains a form
     &:hover {
-      transform: none !important;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    // [HW] The empty actions bar collapses to ~10px without buttons inside it.
-    // [HW] Real cards have 32px buttons + 4px top + 6px bottom padding = 42px total.
-    // [HW] This forces the spacer to the same height so the grey box aligns with adjacent photos.
     .photo-card__actions {
       min-height: 42px;
     }
@@ -62,7 +55,9 @@
 
 // [HW] Grey square fills the same space as a real photo — aspect-ratio 1/1 enforces the square
 // [HW] cursor: pointer signals the whole area is clickable (linked to the hidden file input)
+// [HW] position: relative needed so the absolute preview image fills the square correctly
 .photo-card--upload__dropzone {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -73,8 +68,19 @@
   cursor: pointer;
   transition: background 0.2s ease;
   margin-bottom: 0;
+  overflow: hidden;
 
   &:hover { background: darken($light-gray, 4%); }
+}
+
+// [HW] Preview image — absolutely fills the dropzone square once a file is selected
+.photo-card--upload__preview {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 // [HW] Hidden file input — label click triggers it so it never needs to be visible
@@ -87,6 +93,14 @@
   font-size: 2rem;
   color: darken($light-gray, 25%);
   margin-bottom: 0.4rem;
+}
+
+// [HW] Placeholder wrapper — stacks the camera icon and hint text vertically
+.photo-card--upload__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 // [HW] Small hint text below the camera icon
@@ -133,17 +147,179 @@
   &:hover { background: darken($cu-navy, 8%); }
 }
 
+// [HW] Location field row in the upload modal — red pin icon left, input right
+.photo-card--upload__field-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+// [HW] Red pin icon that prefixes the location input
+.photo-card--upload__field-icon {
+  font-size: 0.75rem;
+  color: $cu-red;
+  flex-shrink: 0;
+}
+
+// [HW] Wrapper gives the dropdown an anchor point (position: relative) while the input fills the space
+.location-autocomplete-wrap {
+  position: relative;
+  flex: 1;
+}
+
+// [HW] Suggestion dropdown — floats below the input, scrollable if many results
+.location-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid $light-gray;
+  border-radius: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+// [HW] Each suggestion row — truncated to one line, highlights on hover
+.location-suggestion {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: $cu-charcoal;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover { background: $light-gray; }
+}
+
+// [HW] Gallery card location label — left of the polaroid actions bar, above the photo
+// [HW] Truncated with ellipsis if the place name is long
+.photo-card__location-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  max-width: 110px;
+  overflow: hidden;
+  white-space: nowrap;
+  color: $cu-red;
+
+  span {
+    color: $cu-charcoal;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// [HW] Feed grid location row — sits between author name and photo on the white card frame
+// [HW] overflow: hidden on the row + min-width: 0 on the span enables ellipsis inside flex
+.feed-grid__location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0 5px;
+  font-size: 0.72rem;
+  color: $cu-charcoal;
+  font-weight: 600;
+  overflow: hidden;
+
+  i { color: $cu-red; font-size: 0.65rem; flex-shrink: 0; }
+
+  span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+}
+
+// [HW] Gallery nav item — flex row so the "+" button sits inline beside the tab label
+.nav-item--with-action {
+  display: flex;
+  align-items: center;
+}
+
+// [HW] Small "+" circle that opens the Add Photo modal
+.add-photo-btn {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid $light-gray;
+  border-radius: 50%;
+  color: $cu-navy;
+  font-size: 0.65rem;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: $light-gray;
+    border-color: $cu-charcoal;
+  }
+}
+
+// [HW] Add Photo modal — centres the upload card inside the modal frame
+.upload-tab {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+// [HW] Enlarged upload card inside the Add Photo modal
+.photo-card--upload-lg {
+  width: 100%;
+  max-width: 380px;
+
+  .photo-card--upload__camera {
+    font-size: 3.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .photo-card--upload__hint {
+    font-size: 0.9rem;
+  }
+}
+
+// [HW] Wrapper for the gallery photo — position:relative anchors the location badge,
+// [HW] overflow:hidden clips the hover scale, cursor:pointer signals the image is clickable
+.photo-card__img-wrap {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
 // [HW] Square crop — keeps the grid uniform regardless of original image dimensions
+// [HW] Scale on parent hover matches feed's image-level zoom (card frame stays still)
 .photo-card__img {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
+  transition: transform 0.2s ease;
+
+  .photo-card:hover & {
+    transform: scale(1.04);
+  }
 }
 
-// [HW] Caption area — centered for My Photos (polaroid feel), left-aligned for feed cards
+// [HW] Caption area — matches feed caption spacing (bottom-heavy for polaroid feel)
 .photo-card__body {
-  padding: 10px 4px 0;
+  padding: 7px 0 14px;
+  min-height: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -274,7 +450,7 @@
 }
 
 // [HW] Single comment row: author + text, delete icon pushed to the far right
-// [HW] Hovering the whole row reveals the hidden trash icon 
+// [HW] Hovering the whole row reveals the hidden trash icon
 .feed-comment {
   display: flex;
   align-items: baseline;
@@ -368,10 +544,8 @@
 // TAB BAR
 // ============================================================
 
-// [HW] Override Bootstrap's default tab colours to match the app's navy/red palette
-// [HW] Bootstrap tabs normally show a white active panel with a border — we replace that with
-// [HW] a simple navy underline to keep the look light and modern
 .cu-tabs {
+  justify-content: center;
   border-bottom: 2px solid $light-gray;
   margin-bottom: 0;
 
@@ -401,12 +575,12 @@
 // COMMUNITY FEED — GRID
 // ============================================================
 
-/// [HW] Cards sit flush against each other (gap:0) with side padding so they don't touch the screen edge
 // [HW] auto-fill fills as many columns as fit; 220px minimum keeps cards legible on small screens
+// [HW] gap: 1.5rem adds breathing room between cards without changing their size
 .feed-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0;
+  gap: 1.5rem;
   padding: 0 1.25rem;
 }
 
@@ -423,13 +597,90 @@
   &:hover { box-shadow: 0 8px 22px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.1); }
 }
 
-// [HW] Author row sits inside the top white frame area — no extra horizontal padding needed
-// [HW] since the card already provides 10px on each side
+// [HW] Author row: flex so the avatar circle and name sit side by side, vertically centred
 .feed-grid__author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 0 0 7px;
+}
+
+// [HW] Cursor signals the avatar is clickable (opens profile card modal)
+.feed-grid__avatar-trigger {
+  cursor: pointer;
+  flex-shrink: 0; // [HW] prevents the circle from squishing when the name is long
+}
+
+// [HW] 28px circle — matches the navbar avatar size; red border matches app-wide avatar style
+.feed-grid__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid $cu-red; // [HW] hairline ring — keeps the red accent without dominating
+  display: block;
+}
+
+// [HW] Placeholder circle when no avatar uploaded — mirrors the profile page fallback
+.feed-grid__avatar--placeholder {
+  background: lighten($cu-navy, 55%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  i { font-size: 0.7rem; color: $cu-navy; }
+}
+
+// [HW] Author name — same bold navy as before, now sits right next to the avatar
+// [HW] ellipsis prevents long names from breaking the card layout on narrow columns
+.feed-grid__author-name {
   font-size: 0.88rem;
   font-weight: 700;
   color: $cu-navy;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// [HW] Avatar modal: centres the large circle inside the polaroid white frame
+.feed-avatar-modal__img-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+}
+
+// [HW] 160px circle — large enough to read clearly, contained in modal-sm
+.feed-avatar-modal__img {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid $cu-red;
+  display: block;
+}
+
+// [HW] Placeholder for modal — same grey circle style as grid card, scaled up
+.feed-avatar-modal__img--placeholder {
+  background: lighten($cu-navy, 55%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  i { font-size: 3rem; color: $cu-navy; }
+}
+
+// [HW] Profile card text — centred to match the portrait layout above
+.feed-avatar-modal__content { text-align: center; }
+
+.feed-avatar-modal__name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $cu-navy;
+  margin-bottom: 2px;
+}
+
+.feed-avatar-modal__status {
+  font-size: 0.8rem;
+  color: $cu-charcoal;
+  margin-bottom: 0;
 }
 
 // [HW] Wrapper scopes the overlay to the photo only — position:relative here, not on the card
@@ -488,20 +739,41 @@
 // ============================================================
 
 // ============================================================
+// ADD PHOTO MODAL — frameless, only the polaroid card is visible
+// ============================================================
+
+.add-photo-modal .modal-dialog {
+  max-width: 400px;
+}
+
+// [HW] Transparent modal shell — no white box, no padding, no shadow
+// [HW] overflow: visible so the polaroid card's own shadow isn't clipped
+.add-photo-modal .modal-content {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  overflow: visible;
+}
+
+// ============================================================
 // COMMUNITY FEED — MODAL (polaroid style: photo top, content below)
 // ============================================================
 
-// [HW] Modal styled as a zoomed polaroid — same shadow/radius as .photo-card but larger
-// [HW] modal-lg gives ~800px width on desktop; the polaroid padding below adds the white frame feel
-// [HW] Modal uses the same polaroid proportions as the grid card, just scaled up
-// [HW] padding: equal on top/left/right, 0 at bottom (content area handles the bottom space)
+// [HW] Constrain to ~420px — matches add-photo modal width, keeps photo + comments in one view
+.feed-modal .modal-dialog {
+  max-width: 420px;
+}
+
 .feed-modal .modal-content {
   border: none;
   border-radius: 2px;
   box-shadow: 0 12px 50px rgba(0, 0, 0, 0.28);
   overflow: hidden;
   position: relative;
-  padding: 16px 16px 0;
+  // [HW] 28px frame on top/left/right gives a thick polaroid border and keeps the close button
+  // [HW] well above the photo — no bottom padding here, the content section handles that
+  padding: 28px 28px 0;
 }
 
 // [HW] Square photo inside the white frame — aspect-ratio matches the grid card thumbnail exactly
@@ -514,27 +786,49 @@
 
 // [HW] Content below the photo — no horizontal padding (modal-content handles the 16px frame)
 // [HW] Bottom padding is larger than top, matching the polaroid proportion of the grid cards
+// [HW] max-height reduced from 45vh — photo is smaller now so less scroll room needed
 .feed-modal__content {
   padding: 10px 0 22px;
-  max-height: 45vh;
+  max-height: 28vh;
   overflow-y: auto;
 }
 
-// [HW] Close button sits in the white frame — top:0 right:4px keeps it inside the 16px padding,
-// [HW] above the photo edge rather than overlapping it
+// [HW] Location in the white frame above the photo — right-aligned to sit in the top-right corner
+// [HW] padding-right leaves clearance for the absolute close button (22px wide + 6px from edge)
+.feed-modal__above-img {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: $cu-charcoal;
+
+  i { color: $cu-red; font-size: 0.65rem; }
+}
+
 .feed-modal__close {
   position: absolute;
-  top: 0;
-  right: 4px;
+  top: 6px;
+  right: 6px;
   z-index: 10;
-  background: none;
+  background: $light-gray;
   border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: $cu-navy;
-  font-size: 0.8rem;
-  padding: 4px;
-  line-height: 1;
-  transition: color 0.15s ease;
+  font-size: 0.7rem;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
 
-  &:hover { color: $cu-red; }
+  &:hover {
+    background: darken($light-gray, 10%);
+    color: $cu-charcoal;
+  }
 }
