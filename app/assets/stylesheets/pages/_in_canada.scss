@@ -1,4 +1,3 @@
-// [HW] Panel boxes — white card with a $cu-red top accent, matching the navbar's border-top style
 .cu-panel {
   background-color: $cu-white;
   border-top: 3px solid $cu-red;
@@ -7,8 +6,6 @@
   padding: 1.5rem 2rem;
 }
 
-// [HW] Section title rendered as a full-width banner inside each panel
-// [HW] Negative margin pulls it to the panel edges; border-radius matches the panel's top corners
 .cu-panel__title {
   color: $cu-navy;
   background: $cu-beige;
@@ -51,9 +48,6 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
     }
 
-    // [HW] The empty actions bar collapses to ~10px without buttons inside it.
-    // [HW] Real cards have 32px buttons + 4px top + 6px bottom padding = 42px total.
-    // [HW] This forces the spacer to the same height so the grey box aligns with adjacent photos.
     .photo-card__actions {
       min-height: 42px;
     }
@@ -368,9 +362,6 @@
 // TAB BAR
 // ============================================================
 
-// [HW] Override Bootstrap's default tab colours to match the app's navy/red palette
-// [HW] Bootstrap tabs normally show a white active panel with a border — we replace that with
-// [HW] a simple navy underline to keep the look light and modern
 .cu-tabs {
   border-bottom: 2px solid $light-gray;
   margin-bottom: 0;
@@ -568,10 +559,6 @@
 // COMMUNITY FEED — MODAL (polaroid style: photo top, content below)
 // ============================================================
 
-// [HW] Modal styled as a zoomed polaroid — same shadow/radius as .photo-card but larger
-// [HW] modal-lg gives ~800px width on desktop; the polaroid padding below adds the white frame feel
-// [HW] Modal uses the same polaroid proportions as the grid card, just scaled up
-// [HW] padding: equal on top/left/right, 0 at bottom (content area handles the bottom space)
 .feed-modal .modal-content {
   border: none;
   border-radius: 2px;
@@ -602,7 +589,7 @@
 .feed-modal__close {
   position: absolute;
   top: 6px;
-  right: 6px; 
+  right: 6px;
   z-index: 10;
   background: $light-gray;
   border: none;
