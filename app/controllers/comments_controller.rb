@@ -7,9 +7,6 @@ class CommentsController < ApplicationController
     # Check if the current user is allowed to post a comment. MJR
     authorize @comment
     @comment.save
-    # [HW] respond_to lets Rails pick the right response format:
-    # [HW]   turbo_stream → renders create.turbo_stream.erb (no page reload)
-    # [HW]   html         → falls back to a full redirect for browsers without Turbo
     respond_to do |format|
       format.turbo_stream
       format.html { redirect_to in_canada_path, status: :see_other }

@@ -45,7 +45,7 @@ Rails.application.routes.draw do
   # Admin-only: create viewer accounts linked to a student.
   # Uses "viewers" path to avoid conflict with devise_for :users (both would map to POST /users). MJR
   resources :viewers, only: [:new, :create], controller: "users"
-  resources :tasks, only: [:show]
+  resources :tasks, only: [:show, :edit, :update]
 
   # [HW] only :update — the questionnaire form lives on the post_canada page, no separate show needed
   resources :questionnaires, only: [:update]

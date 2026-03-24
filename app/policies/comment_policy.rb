@@ -6,8 +6,9 @@ class CommentPolicy < ApplicationPolicy
     admin? || user.user?
   end
 
-  # Only the comment owner or an admin can delete. MJR
+  # Only the comment owner or an admin can delete. Viewers are read-only. MJR
   def destroy?
-    admin? || record.user == effective_user
+    return false if user.viewer?
+    admin? || record.user == user
   end
 end

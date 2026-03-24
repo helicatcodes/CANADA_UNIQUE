@@ -11,4 +11,11 @@ class ApplicationController < ActionController::Base
   def user_not_authorized
     redirect_to root_path, alert: "Not authorized."
   end
+
+  # Returns the student the current user is acting as.
+  # For viewers (parents), this is their linked child. For everyone else, it's themselves. MJR
+  def effective_user
+    current_user.viewer? ? current_user.linked_user : current_user
+  end
+  helper_method :effective_user
 end

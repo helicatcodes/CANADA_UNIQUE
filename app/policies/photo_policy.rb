@@ -15,13 +15,15 @@ class PhotoPolicy < ApplicationPolicy
     admin? || user.user?
   end
 
-  # Only the photo owner or an admin can edit/delete/share. MJR
+  # Only the photo owner or an admin can edit/delete/share. Viewers are read-only. MJR
   def update?
-    admin? || record.user == effective_user
+    return false if user.viewer?
+    admin? || record.user == user
   end
 
   def destroy?
-    admin? || record.user == effective_user
+    return false if user.viewer?
+    admin? || record.user == user
   end
 
   def toggle_share?
