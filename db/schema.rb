@@ -158,7 +158,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_100317) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.boolean "admin", default: false, null: false
     t.integer "batch_number"
     t.datetime "created_at", null: false
     t.date "date_of_birth"
@@ -167,11 +166,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_24_100317) do
     t.string "encrypted_password", default: "", null: false
     t.string "first_name"
     t.string "last_name"
+    t.integer "linked_user_id"
     t.string "name"
     t.integer "program_duration"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.integer "role", default: 0, null: false
     t.string "status"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
