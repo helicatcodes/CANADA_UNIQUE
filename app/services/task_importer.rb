@@ -5,7 +5,7 @@ class TaskImporter
   def call
     spreadsheet = fetch_spreadsheet
     spreadsheet.each_row_streaming(offset: 1, pad_cells: true) do |row|
-      email       = row[0]&.value
+      email = row[0]&.value&.gsub(/<[^>]*>/, "")&.strip
       task_name   = row[1]&.value
       description = row[2]&.value
       status      = row[3]&.value
