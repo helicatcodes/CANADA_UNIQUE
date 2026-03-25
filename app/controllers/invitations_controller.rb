@@ -1,3 +1,7 @@
+# Admin-facing controller for sending user invitations.
+# new  — renders a form with a single textarea for one or more email addresses.
+# create — splits input by comma/newline, creates a pending Token per email,
+#           and sends an invitation email in the background via UserMailer.
 class InvitationsController < ApplicationController
   def new
   end

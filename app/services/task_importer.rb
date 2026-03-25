@@ -1,6 +1,12 @@
 require "roo"
 require "open-uri"
 
+# Service object that imports tasks from an Excel file hosted on Cloudinary.
+# The Excel sheet "App_test" has one row per user-task combination:
+#   columns: email | task_name | description | status | obligatory
+# For each row: finds the user by email, then creates or updates the task by name.
+# Rows with missing email or task_name are skipped. Unknown emails are skipped.
+# Triggered via rake task (rails tasks:import) or the sync button on the pre-canada page.
 class TaskImporter
   def call
     spreadsheet = fetch_spreadsheet
@@ -10,7 +16,6 @@ class TaskImporter
       description = row[2]&.value
       status      = row[3]&.value
       obligatory = row[4]&.value
-
 
       next if email.blank? || task_name.blank?
 

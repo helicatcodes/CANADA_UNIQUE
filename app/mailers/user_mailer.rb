@@ -1,3 +1,6 @@
+# Mailer for user-facing emails.
+# invitation — sends an invitation email with a unique sign-up link (verify_invitation_url).
+#              Called by InvitationsController#create for each invited email address.
 class UserMailer < ApplicationMailer
   # Subject can be set in your I18n file at config/locales/en.yml
   # with the following lookup:

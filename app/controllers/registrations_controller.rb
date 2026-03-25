@@ -1,3 +1,6 @@
+# Overrides Devise's RegistrationsController to enforce invitation-only sign up.
+# create — validates the token from the hidden form field before allowing registration.
+#           Marks the token as accepted after the user is successfully created.
 class RegistrationsController < Devise::RegistrationsController
   def create
     @token = Token.find_by(token: params[:user][:token])

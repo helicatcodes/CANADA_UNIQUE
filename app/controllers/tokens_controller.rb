@@ -1,3 +1,7 @@
+# Handles the invitation link clicked by the prospective user.
+# verify — looks up the token from the URL, redirects to Devise sign up if pending,
+#           or back to root with an alert if invalid/expired.
+#           Skips authentication so unauthenticated users can access the link.
 class TokensController < ApplicationController
 
   skip_before_action :authenticate_user!, only: [:verify]

@@ -11,4 +11,16 @@ module ApplicationHelper
     safe = ERB::Util.html_escape(text)
     safe.gsub(/#(\w+)/, '<span class="caption-hashtag">#\1</span>').html_safe
   end
+
+  # [MG] Maps a task status string to one of three badge modifier classes:
+  # open (grey), in-progress (yellow), or done (green).
+  # Only "not started" is open; a fixed set of strings are in-progress;
+  # anything else (including date placeholders like "[Departure Date]") is treated as done.
+  IN_PROGRESS_STATUSES = %w[sent in\ progress pending ongoing\ coordination].freeze
+
+  def task_badge_class(status)
+    return "task-table__badge--open"        if status.blank? || status == "not started"
+    return "task-table__badge--in-progress" if IN_PROGRESS_STATUSES.include?(status.downcase)
+    "task-table__badge--done"
+  end
 end
