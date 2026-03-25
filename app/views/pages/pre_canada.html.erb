@@ -1,8 +1,5 @@
 <div class="pre-canada">
 
-  <%= button_to "↻ Sync Tasks", sync_tasks_path, method: :post,
-      style: "background: none; border: 1px solid #ccc; border-radius: 6px; padding: 6px 14px; font-size: 0.85rem; color: #555; cursor: pointer; float: right;" %>
-
   <%# ── Card 1: Countdown ── %>
   <div class="pre-canada__card pre-canada__countdown">
     <h2 class="pre-canada__card-title">Your countdown</h2>
@@ -12,15 +9,30 @@
 
   <%# ── Card 2: Obligatory tasks ── %>
   <div class="pre-canada__card">
-    <h2 class="pre-canada__card-title">Obligatory tasks</h2>
+    <div class="pre-canada__card-title-row">
+      <h2 class="pre-canada__card-title">Tasks</h2>
+      <%= button_to sync_tasks_path, method: :post, class: "pre-canada__sync-btn", title: "Sync tasks" do %>
+        <i class="fa-solid fa-rotate"></i>
+      <% end %>
+    </div>
     <%= render 'tasks/task_list', tasks: effective_user.tasks.where(obligatory: true) %>
   </div>
 
-  <%# ── Card 3: Next steps ── %>
+  <%# ── Card 3: Next steps — 3 visual boxes linking to task#show ── %>
   <div class="pre-canada__card">
     <h2 class="pre-canada__card-title">Next steps</h2>
-    <p class="pre-canada__tasks-intro">Find more information about your new home for the next year to be perfectly prepared for your adventure to come!</p>
-    <%= render 'tasks/task_list', tasks: effective_user.tasks.where(obligatory: false) %>
+    <div class="next-steps">
+      <% effective_user.tasks.where(obligatory: false).each do |task| %>
+        <%= link_to task_path(task), class: "next-steps__box" do %>
+          <%# [MG] Image matched to task name — files live in app/assets/images/pre_canada_<task_name>.jpg %>
+          <%# [MG] Image matched to task name — underscored filename e.g. pre_canada_pack_your_bags.jpg %>
+          <div class="next-steps__img" style="background-image: url('<%= asset_path("pre_canada_#{task.name.downcase.gsub(' ', '_')}.jpg") %>')"></div>
+          <div class="next-steps__overlay">
+            <span class="next-steps__name"><%= task.name %></span>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
 </div>
