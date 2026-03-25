@@ -356,87 +356,10 @@ puts "Created notifications via AdminBroadcastNotifier"
 # ---------------------------
 # 10. TASKS
 # ---------------------------
-puts "Creating tasks..."
-
-obligatory_tasks = [
-  "Jahreszeugnisse",
-  "Gastfamilienbrief",
-  "Fotocollage",
-  "Recommendation Form",
-  "Reisepass",
-  "Passbild",
-  "Personalausweise deiner Eltern",
-  "(Internationale) Geburtsurkunde",
-  "Impfpass",
-  "Medizinische Einschränkungen",
-  "Application",
-  "Custodianship Declaration",
-  "Letter of Acceptance",
-  "Visum",
-  "Sonstige"
-]
-
-fun_tasks = [
-  "Packing list",
-  "Resources about location"
-]
-
-task_descriptions = {
-  "Jahreszeugnisse"                  => "Collect your last two school report cards and have them officially translated.",
-  "Gastfamilienbrief"                => "Write a personal letter to your host family introducing yourself.",
-  "Fotocollage"                      => "Create a photo collage of yourself, your family, hobbies and hometown.",
-  "Recommendation Form"              => "Ask your school teacher or counselor to complete the recommendation form.",
-  "Reisepass"                        => "Ensure your passport is valid for the entire duration of your stay.",
-  "Passbild"                         => "Get biometric passport photos taken at a photo studio.",
-  "Personalausweise deiner Eltern"   => "Collect copies of both parents' ID cards.",
-  "(Internationale) Geburtsurkunde"  => "Obtain an official international birth certificate.",
-  "Impfpass"                         => "Check your vaccination record and get any required vaccinations.",
-  "Medizinische Einschränkungen"     => "Document any medical conditions or dietary restrictions.",
-  "Application"                      => "Complete and submit the official Canada Unique application form.",
-  "Custodianship Declaration"        => "Have the custodianship declaration signed and notarized.",
-  "Letter of Acceptance"             => "Receive and file your official letter of acceptance from the school.",
-  "Visum"                            => "Apply for your Canadian student visa at the embassy.",
-  "Sonstige"                         => "Any additional documents required by your specific program.",
-  "Packing list"                     => "Prepare your packing list based on the destination and season.",
-  "Resources about location"         => "Research your destination city, local transport, and points of interest."
-}
-
-# Task statuses per user reflect their journey stage — Mario is just starting, Manu is done. MJR
-task_statuses = {
-  "Mario"   => { obligatory: (["offen"] * 10) + (["in Bearbeitung"] * 5),        fun: ["offen", "offen"] },
-  "Helena"  => { obligatory: (["erledigt"] * 8) + (["in Bearbeitung"] * 4) + (["offen"] * 3), fun: ["erledigt", "in Bearbeitung"] },
-  "Niels"   => { obligatory: (["erledigt"] * 12) + (["in Bearbeitung"] * 2) + (["offen"] * 1), fun: ["erledigt", "erledigt"] },
-  "Manu"    => { obligatory: ["erledigt"] * 15,                                   fun: ["erledigt", "erledigt"] }
-}
-
-users.each do |folder, user|
-  statuses = task_statuses[folder] || {}
-
-  obligatory_tasks.each_with_index do |task, i|
-    Task.create!(
-      name: task,
-      description: task_descriptions[task],
-      obligatory: true,
-      start_date: Date.tomorrow + rand(10..20),
-      user: user,
-      status: (statuses[:obligatory] || [])[i] || "offen"
-    )
-  end
-
-  fun_tasks.each_with_index do |task, i|
-    Task.create!(
-      name: task,
-      description: task_descriptions[task],
-      obligatory: false,
-      start_date: Date.tomorrow + rand(10..20),
-      user: user,
-      status: (statuses[:fun] || [])[i] || "offen"
-    )
-  end
-end
-
-puts "Created #{Task.count} tasks"
+puts "Importing tasks from Excel..."
+TaskImporter.new.call
+puts "Imported #{Task.count} tasks"
 
 puts ""
 puts "Seeding finished!"
-puts "#{User.count} users | #{Photo.count} photos | #{Comment.count} comments | #{Like.count} likes | #{Chat.count} chats | #{Message.count} messages | #{Task.count} tasks | #{Noticed::Event.count} notifications"
+puts "#{User.count} users | #{Photo.count} photos | #{Comment.count} comments | #{Like.count} likes | #{Chat.count} chats | #{Message.count} messages | #{Task.count} tasks (from Excel) | #{Noticed::Event.count} notifications"

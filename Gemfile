@@ -79,3 +79,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "roo", "~> 3.0"
