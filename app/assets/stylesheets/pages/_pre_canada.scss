@@ -201,6 +201,11 @@ form:has(.prep-checklist__sync-btn) {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
+// Expandable cards get a pointer cursor
+.prep-checklist__item--expandable {
+  cursor: pointer;
+}
+
 .prep-checklist__item-body {
   flex: 1;
   display: flex;
@@ -219,14 +224,36 @@ form:has(.prep-checklist__sync-btn) {
   }
 }
 
+// Collapsed: single line with ellipsis. Expanded: full text.
 .prep-checklist__item-desc {
   font-size: 0.75rem;
   color: #999;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+
+  &--expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+  }
+}
+
+.prep-checklist__chevron {
+  font-size: 0.7rem;
+  color: #bbb;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+
+  &--open { transform: rotate(180deg); }
 }
 
 .prep-checklist__item-icon {
-  font-size: 1rem;
-  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   flex-shrink: 0;
 }
 
