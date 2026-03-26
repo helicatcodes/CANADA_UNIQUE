@@ -8,6 +8,8 @@
     </h1>
   </div>
 
+  <p class="pre-canada__intro">You decided to start your next big adventure and we are as excited as you are to get started. We gathered everything essential you need to prepare for your adventure here. Complete the tasks to make sure your transition will be smooth.</p>
+
   <%# ── Countdown ring ─────────────────────────────────────────────────────────
       Fill fraction goes from 0 (many days left) to 1 (departure day).
       dash_offset drives the SVG arc: 0 = full circle, circumference = no arc. ── %>
@@ -15,6 +17,8 @@
   <% fill_fraction = [[1.0 - (@countdown.to_f / @total_days), 0.0].max, 1.0].min %>
   <% dash_offset   = circumference * (1 - fill_fraction) %>
 
+  <div class="countdown-section">
+  <h2 class="prep-checklist__title">Countdown until departure</h2>
   <div class="pre-canada__ring-section">
     <div class="pre-canada__ring-wrap">
       <svg class="pre-canada__ring-svg" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
@@ -40,42 +44,47 @@
       <p class="pre-canada__departure-date">Departure: <%= effective_user.departure_date.strftime("%b %d, %Y") %></p>
     </div>
   </div>
+  </div>
 
   <%# ── Preparation Checklist ── %>
   <% obligatory_tasks = effective_user.tasks.where(obligatory: true).sort_by { |t| task_badge_class(t.status) == 'task-table__badge--done' ? 1 : 0 } %>
   <% done_count = obligatory_tasks.count { |t| task_badge_class(t.status) == 'task-table__badge--done' } %>
 
-  <div class="prep-checklist">
-    <div class="prep-checklist__header">
-      <h2 class="prep-checklist__title">Preparation Checklist</h2>
-      <span class="prep-checklist__badge"><%= done_count %>/<%= obligatory_tasks.count %> DONE</span>
-      <%= button_to sync_tasks_path, method: :post, class: "prep-checklist__sync-btn", title: "Sync tasks" do %>
-        <i class="fa-solid fa-rotate"></i>
-      <% end %>
+  <div class="prep-checklist" data-controller="collapsible">
+    <div class="prep-checklist__header" data-action="click->collapsible#toggle">
+      <p class="prep-checklist__header-status"><%= done_count %>/<%= obligatory_tasks.count %> DONE</p>
+      <div class="prep-checklist__header-body">
+        <div class="prep-checklist__header-icon">
+          <i class="fa-solid fa-list-check"></i>
+        </div>
+        <h3 class="prep-checklist__header-title">Preparation Checklist</h3>
+      </div>
+      <button class="prep-checklist__header-btn" data-collapsible-target="chevron">Show tasks</button>
     </div>
 
-    <div class="prep-checklist__list">
+    <div class="prep-checklist__list collapsible--hidden" data-collapsible-target="content">
+      <div class="prep-checklist__list-actions">
+        <%= button_to sync_tasks_path, method: :post, class: "prep-checklist__sync-btn", title: "Sync tasks" do %>
+          <i class="fa-solid fa-rotate"></i> Sync
+        <% end %>
+      </div>
       <% obligatory_tasks.each do |task| %>
+        <% done = task_badge_class(task.status) == 'task-table__badge--done' %>
         <div class="prep-checklist__item <%= 'prep-checklist__item--expandable' if task.description.present? %>"
              <% if task.description.present? %>
                data-controller="task-expand"
                data-action="click->task-expand#toggle"
              <% end %>>
-          <div class="prep-checklist__item-body">
-            <% done = task_badge_class(task.status) == 'task-table__badge--done' %>
-            <span class="prep-checklist__item-name <%= 'prep-checklist__item-name--done' if done %>"><%= task.name %></span>
-            <% if task.description.present? %>
-              <span class="prep-checklist__item-desc" data-task-expand-target="desc">
-                <%= task.description %>
-              </span>
-            <% end %>
-          </div>
-          <div class="prep-checklist__item-icon">
+          <div class="prep-checklist__item-row">
             <% if task.description.present? %>
               <i class="fa-solid fa-chevron-down prep-checklist__chevron" data-task-expand-target="chevron"></i>
             <% end %>
-            <span class="task-table__badge <%= task_badge_class(task.status) %>"><%= task.status %></span>
+            <span class="prep-checklist__item-name <%= 'prep-checklist__item-name--done' if done %>"><%= task.name %></span>
+            <span class="task-table__badge <%= task_badge_class(task.status) %>"><%= task_badge_label(task.status) %></span>
           </div>
+          <% if task.description.present? %>
+            <span class="prep-checklist__item-desc" data-task-expand-target="desc"><%= task.description %></span>
+          <% end %>
         </div>
       <% end %>
     </div>
