@@ -3,7 +3,7 @@ source "https://rubygems.org"
 # install the ruby_llm for the AI Chatbot NVD
 gem "ruby_llm"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.2"
+gem "rails", "~> 8.1.3"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 # Use postgresql as the database for Active Record
 gem "pg", "~> 1.1"
